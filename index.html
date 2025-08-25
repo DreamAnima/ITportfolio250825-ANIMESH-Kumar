@@ -255,35 +255,6 @@
             color: #667eea;
             flex-shrink: 0;
         }
-
-        /* GitHub Button Styles */
-        .github-profile-link {
-            display: flex;
-            justify-content: center; /* Center the GitHub link */
-            align-items: center;
-            gap: 0.5em;
-            margin-top: 1.5em; /* Add some space below contact info */
-            margin-bottom: 1em; /* Add space before the next section */
-        }
-        .github-btn button {
-            background-color: #24292f;
-            color: #fff;
-            border: none;
-            padding: 0.5em 1em;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 0.5em;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background 0.2s;
-        }
-        .github-btn button:hover {
-            background-color: #333;
-        }
-        .github-btn svg {
-            vertical-align: middle;
-        }
         
         @media (max-width: 600px) {
             body {
@@ -322,10 +293,6 @@
                 height: 250px;
                 max-height: 300px;
             }
-            .github-profile-link {
-                flex-direction: column;
-                gap: 1em;
-            }
         }
     </style>
 </head>
@@ -339,19 +306,6 @@
                 <div class="contact-item">📞 +91-9811836404</div>
                 <div class="contact-item">✉️ Kumar009Animesh@Gmail.com</div>
                 <div class="contact-item">💼 linkedin.com/in/an001kum1</div>
-            </div>
-
-            <!-- GitHub Profile Link Added Here -->
-            <div class="github-profile-link">
-                <span>View my GitHub:</span>
-                <a href="https://github.com/DreamAnima" target="_blank" rel="noopener noreferrer" class="github-btn">
-                    <button>
-                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49C4.14 14.09 3.63 12.81 3.63 12.81c-.36-.92-.88-1.17-.88-1.17-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.86.5-1.06-3.32-.38-6.82-1.66-6.82-7.39 0-1.63.58-2.96 1.53-4-.15-.38-.67-1.91.15-3.98 0 0 1.26-.4 4.13 1.53A14.38 14.38 0 018 3.73c1.28.01 2.57.17 3.78.51 2.87-1.93 4.13-1.53 4.13-1.53.82 2.07.3 3.6.15 3.98.95 1.04 1.53 2.37 1.53 4 0 5.74-3.5 7.01-6.83 7.38.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.56.38C13.71 14.53 16 11.54 16 8c0-4.42-3.58-8-8-8z"></path>
-                        </svg>
-                        View my GitHub
-                    </button>
-                </a>
             </div>
         </div>
 
@@ -404,7 +358,7 @@
                             <li>Provided essential technical guidance and mentorship to Tier 1 and Tier 2 engineers, ensuring operational continuity and knowledge transfer.</li>
                             <li>Proactively conducted comprehensive product and process training programs, fostering professional growth and reducing resolution times.</li>
                             <li>Utilized expertise to troubleshoot intricate issues related to key Microsoft products, including Windows OS, Office 365, Outlook, and OneDrive.</li>
-                            <li>Served as the primary point of contact for high-severity cases escalated via social media, press, and internal executives.</li>
+                            <li>Served as the primary point of contact for high-severity cases escalated via social media, press, and executive channels.</li>
                             <li>Ensured prompt and effective resolutions of critical issues while meticulously documenting interactions related to sensitive data and recovery scenarios.</li>
                         </ul>
                     </div>
@@ -530,12 +484,12 @@
                     <div class="cert-item">
                         <div class="cert-name">Machine Learning Specialization</div>
                         <div class="cert-issuer">Stanford University & DeepLearning.AI (Coursera)</div>
-                        <div class="cert-date">2024</div>
+                        <div class="cert-date">2025</div>
                     </div>
                     <div class="cert-item">
                         <div class="cert-name">AI for Everyone</div>
                         <div class="cert-issuer">DeepLearning.AI (Coursera)</div>
-                        <div class="cert-date">2024</div>
+                        <div class="cert-date">2025</div>
                     </div>
                     <div class="cert-item">
                         <div class="cert-name">Information Security Management</div>
@@ -545,7 +499,7 @@
                     <div class="cert-item">
                         <div class="cert-name">Google Cloud Security</div>
                         <div class="cert-issuer">Google Cloud</div>
-                        <div class="cert-date">2023</div>
+                        <div class="cert-date">2024</div>
                     </div>
                     <div class="cert-item">
                         <div class="cert-name">Digital Transformation</div>
@@ -561,11 +515,11 @@
                 <div class="education-item">
                     <div class="education-header">
                         <div>
-                            <div class="degree">Bachelor of Computer Applications</div>
+                            <div class="degree">Bachelor's degree in Computer Science</div>
                             <div class="university">Bangalore University</div>
                         </div>
                         <div class="date-location">
-                            Apr 2007 – Mar 2012<br>
+                            Apr 2007 – Jun 2012<br>
                             Bangalore, India
                         </div>
                     </div>
@@ -697,34 +651,7 @@
                 console.error("Error initializing Chart.js:", error);
             }
 
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('.section');
-            window.addEventListener('scroll', () => {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (pageYOffset >= sectionTop - 100) {
-                        current = section.getAttribute('id');
-                    }
-                });
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active-link');
-                    if (link.getAttribute('href').includes(current)) {
-                        link.classList.add('active-link');
-                    }
-                });
-            });
-            
-            navLinks.forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                });
-            });
+            /* Removed navigation-related JavaScript */
         });
     </script>
 </body>

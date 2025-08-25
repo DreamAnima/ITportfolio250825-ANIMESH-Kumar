@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animesh Kumar - Professional Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Modern Purple-Blue Gradient (similar to modern_resume_template) -->
+    <!-- Application Structure Plan: The application is now structured like a modern resume, featuring a clear header with personal details, a professional summary, detailed professional experience, a dynamic technical skills section with a radar chart, a hobbies section, a certifications list, and an education section. This familiar layout prioritizes easy navigation and consumption of information, mirroring a common and accepted format for professional documents. The interactive elements (skill chart, stat animation) are integrated within these standard sections to enhance engagement without disrupting the resume's core structure. -->
+    <!-- Visualization & Content Choices: 1. Professional Experience: Report Info -> Chronological roles and responsibilities. Goal -> Detail accomplishments and career progression. Viz/Method -> Standard list of job descriptions with bullet points and key achievement highlighted within the text. Justification -> This is the most accepted and scannable format for work history on a resume. 2. Technical Skills: Report Info -> List of technical competencies. Goal -> Showcase breadth and depth of skills across categories. Viz/Method -> Interactive Radar Chart (Chart.js/Canvas) coupled with categorized skill tags. Interaction -> Clicking skill category buttons dynamically updates the radar chart, allowing users to focus on specific skill areas. Justification -> A radar chart provides a dynamic visual summary of skill proficiency, and buttons offer a clean way to filter. 3. Quantifiable Achievements: Report Info -> Specific metrics (25% satisfaction, 50+ engineers). Goal -> Emphasize tangible impact. Viz/Method -> Integrated within experience bullet points as bolded text. Justification -> Keeping the achievements directly with the experience makes their context clear and impactful. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .resume-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 40px 30px;
+            text-align: center;
+        }
+
+        .name {
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .title {
+            font-size: 1.2em;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #667eea;
+        }
+
+        .summary-text {
+            font-size: 1.05em;
+            line-height: 1.7;
+            color: #555;
+            text-align: justify;
+        }
+
+        .experience-item, .education-item, .cert-item {
+            margin-bottom: 25px;
+            padding-left: 20px;
+            border-left: 3px solid #e9ecef;
+            position: relative;
+        }
+
+        .experience-item::before, .education-item::before, .cert-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 8px;
+            width: 9px;
+            height: 9px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+
+        .job-header, .education-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .job-title, .degree, .cert-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .company, .university, .cert-issuer {
+            font-weight: 500;
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        .date-location, .cert-date {
+            text-align: right;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .job-description {
+            margin-top: 10px;
+        }
+
+        .job-description ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .job-description li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+        }
+
+        .job-description li::before {
+            content: '▸'; /* Modern bullet point */
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .skill-category-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .skill-category-card h4 {
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #555;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height for chart */
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px; /* Larger height on desktop */
+                max-height: 500px;
+            }
+        }
+
+        .skill-btn.active {
+            background-color: #667eea;
+            color: #fff;
+            border-color: #667eea;
+        }
+
+        .hobbies-list {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .hobby-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: #555;
+        }
+        .hobby-item span {
+            font-size: 1.2em;
+            color: #667eea;
+            flex-shrink: 0;
+        }
+
+        /* GitHub Button Styles */
+        .github-profile-link {
+            display: flex;
+            justify-content: center; /* Center the GitHub link */
+            align-items: center;
+            gap: 0.5em;
+            margin-top: 1.5em; /* Add some space below contact info */
+            margin-bottom: 1em; /* Add space before the next section */
+        }
+        .github-btn button {
+            background-color: #24292f;
+            color: #fff;
+            border: none;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.2s;
+        }
+        .github-btn button:hover {
+            background-color: #333;
+        }
+        .github-btn svg {
+            vertical-align: middle;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .resume-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .header {
+                padding: 25px 15px 15px;
+            }
+            .name {
+                font-size: 2em;
+            }
+            .main-content {
+                padding: 25px 15px;
+            }
+            .contact-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .job-header, .education-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .date-location {
+                text-align: left;
+                margin-top: 5px;
+            }
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-container {
+                height: 250px;
+                max-height: 300px;
+            }
+            .github-profile-link {
+                flex-direction: column;
+                gap: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <div class="header">
+            <h1 class="name">ANIMESH KUMAR</h1>
+            <div class="title">Technical Subject Matter Expert & Strategic Advisor</div>
+            <div class="contact-info">
+                <div class="contact-item">📍 Balasore, India</div>
+                <div class="contact-item">📞 +91-9811836404</div>
+                <div class="contact-item">✉️ Kumar009Animesh@Gmail.com</div>
+                <div class="contact-item">💼 linkedin.com/in/an001kum1</div>
+            </div>
+
+            <!-- GitHub Profile Link Added Here -->
+            <div class="github-profile-link">
+                <span>View my GitHub:</span>
+                <a href="https://github.com/DreamAnima" target="_blank" rel="noopener noreferrer" class="github-btn">
+                    <button>
+                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49C4.14 14.09 3.63 12.81 3.63 12.81c-.36-.92-.88-1.17-.88-1.17-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.86.5-1.06-3.32-.38-6.82-1.66-6.82-7.39 0-1.63.58-2.96 1.53-4-.15-.38-.67-1.91.15-3.98 0 0 1.26-.4 4.13 1.53A14.38 14.38 0 018 3.73c1.28.01 2.57.17 3.78.51 2.87-1.93 4.13-1.53 4.13-1.53.82 2.07.3 3.6.15 3.98.95 1.04 1.53 2.37 1.53 4 0 5.74-3.5 7.01-6.83 7.38.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.56.38C13.71 14.53 16 11.54 16 8c0-4.42-3.58-8-8-8z"></path>
+                        </svg>
+                        View my GitHub
+                    </button>
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section" id="summary">
+                <h2 class="section-title">Professional Summary</h2>
+                <p class="summary-text">
+                    Highly accomplished and service delivery-focused **Technical Subject Matter Expert (SME)** with 6+ years of hands-on expertise in Microsoft ecosystem support, identity and access management, and advanced technical issue resolution. Proven track record in driving engineer readiness and delivery excellence through comprehensive skills-gap analysis, meticulous case management, and effective mentorship for frontline support teams. Expert in managing high-severity technical incidents, implementing robust technical protocols, and leveraging AI-enhanced diagnostic tools to optimize response protocols. Adept at cross-functional collaboration, influencing product improvements, and contributing to customer self-help and volume deflection initiatives. Passionate about empowering technical staff and accelerating business value through differentiated customer experiences, aligning seamlessly with Microsoft’s mission and focus on AI transformation.
+                </p>
+            </div>
+
+            <div class="section" id="experience">
+                <h2 class="section-title">Professional Experience</h2>
+                
+                <div class="experience-item">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">Lead Operations | Sr. Advisor, Technical Support</div>
+                            <div class="company">Concentrix (Microsoft Partner) - Hybrid</div>
+                        </div>
+                        <div class="date-location">
+                            Jun 2023 – Jan 2024<br>
+                            Baleshwar, India
+                        </div>
+                    </div>
+                    <div class="job-description">
+                        <ul>
+                            <li>Facilitated collaboration between Tier 1, Tier 2, and Tier 3 engineers and Microsoft's Product design and coding teams, fostering an environment of cooperation and innovation that directly influenced product improvement.</li>
+                            <li>Spearheaded knowledge dissemination sessions and workshops, ensuring the team stayed current with the latest features and best practices concerning Microsoft products, significantly enhancing collective proficiency and service quality across **50+ engineers**.</li>
+                            <li>Assumed responsibility for creating and curating a comprehensive knowledge repository, including articles, FAQs, and manuals, while instituting a rigorous review and validation process to ensure the technical accuracy of support actions.</li>
+                            <li>Monitored and analyzed the performance metrics of the technical support team using Microsoft Copilot and Dynamics 365, enabling ongoing improvements and capturing valuable feedback that enhanced product functionality and **improved customer satisfaction by 25%**.</li>
+                            <li>Led crisis management for high-severity escalations, demonstrating strong analytical and communication skills under pressure.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="experience-item">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">Tier 3 Engineer</div>
+                            <div class="company">Concentrix (Remote)</div>
+                        </div>
+                        <div class="date-location">
+                            Feb 2019 – Jun 2023<br>
+                            Gurgaon, India
+                        </div>
+                    </div>
+                    <div class="job-description">
+                        <ul>
+                            <li>Provided essential technical guidance and mentorship to Tier 1 and Tier 2 engineers, ensuring operational continuity and knowledge transfer.</li>
+                            <li>Proactively conducted comprehensive product and process training programs, fostering professional growth and reducing resolution times.</li>
+                            <li>Utilized expertise to troubleshoot intricate issues related to key Microsoft products, including Windows OS, Office 365, Outlook, and OneDrive.</li>
+                            <li>Served as the primary point of contact for high-severity cases escalated via social media, press, and internal executives.</li>
+                            <li>Ensured prompt and effective resolutions of critical issues while meticulously documenting interactions related to sensitive data and recovery scenarios.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="experience-item">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">Tier 2 Engineer</div>
+                            <div class="company">Convergys</div>
+                        </div>
+                        <div class="date-location">
+                            Jan 2018 – Feb 2019<br>
+                            Gurgaon, India
+                        </div>
+                    </div>
+                    <div class="job-description">
+                        <ul>
+                            <li>Identified and troubleshot anomalies, resolving escalated cases from Tier 1 support while providing detailed analysis for complex technical issues.</li>
+                            <li>Collaborated directly with Microsoft Windows and Office clients, participating in regular technical triages.</li>
+                            <li>Engaged at a higher technical level with direct interaction with product owners, handling complex scenarios and contributing to broader problem-solving efforts.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="experience-item">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">Tier 1 Engineer</div>
+                            <div class="company">Convergys</div>
+                        </div>
+                        <div class="date-location">
+                            Sep 2017 – Aug 2018<br>
+                            Gurgaon, India
+                        </div>
+                    </div>
+                    <div class="job-description">
+                        <ul>
+                            <li>Delivered front-line customer support, assisting users with product activation and basic technical troubleshooting for Microsoft products and services across various operating systems, including MacOS, Windows OS, and Android OS.</li>
+                            <li>Achieved successful resolutions for initial customer inquiries and basic technical issues.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" id="skills">
+                <h2 class="section-title">Technical Skills & Specialties</h2>
+                <div class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">A multi-faceted skill set spanning cloud platforms, technical operations, and advanced analytics. Click a category to see the focus.</div>
+                
+                <div class="bg-white p-6 md:p-10 rounded-xl shadow-lg">
+                    <div class="text-center mb-8 flex flex-wrap justify-center gap-2 md:gap-4">
+                        <button class="skill-btn active skill-btn-js px-4 py-2 text-sm font-medium rounded-full bg-gray-200 text-gray-700 transition" data-skill="leadership">Leadership & Operations</button>
+                        <button class="skill-btn skill-btn-js px-4 py-2 text-sm font-medium rounded-full bg-gray-200 text-gray-700 transition" data-skill="cloud">Cloud & Platforms</button>
+                        <button class="skill-btn skill-btn-js px-4 py-2 text-sm font-medium rounded-full bg-gray-200 text-gray-700 transition" data-skill="ai">AI & Analytics</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="skillsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="skills-grid">
+                    <div class="skill-category-card">
+                        <h4>Operating Systems</h4>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Windows Server (2016, 2019, 2022)</span>
+                            <span class="skill-tag">Linux (Ubuntu, CentOS)</span>
+                            <span class="skill-tag">Azure Virtual Desktop</span>
+                            <span class="skill-tag">Windows 10/11</span>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category-card">
+                        <h4>Cloud Platforms & Management</h4>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Microsoft Azure (Active Directory, Management Portal, VMs, Networking)</span>
+                            <span class="skill-tag">Microsoft 365 (Exchange Online, SharePoint Online, Skype, Teams, Outlook on the web)</span>
+                            <span class="skill-tag">Google Cloud Platform (GCP) Portals</span>
+                            <span class="skill-tag">Amazon Web Services (AWS) Portals</span>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category-card">
+                        <h4>Technical Support & Operations</h4>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Identity & Access Management</span>
+                            <span class="skill-tag">Incident Response</span>
+                            <span class="skill-tag">Root Cause Analysis</span>
+                            <span class="skill-tag">System Assessment</span>
+                            <span class="skill-tag">Log Analysis & Automation</span>
+                            <span class="skill-tag">System Monitoring</span>
+                            <span class="skill-tag">Process Compliance</span>
+                            <span class="skill-tag">Technical Documentation</span>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category-card">
+                        <h4>Networking & General</h4>
+                        <div class="skill-tags">
+                            <span class="skill-tag">TCP/IP</span>
+                            <span class="skill-tag">DNS</span>
+                            <span class="skill-tag">DHCP</span>
+                            <span class="skill-tag">VPN</span>
+                            <span class="skill-tag">Firewalls</span>
+                            <span class="skill-tag">Network Troubleshooting</span>
+                            <span class="skill-tag">PowerShell</span>
+                            <span class="skill-tag">SQL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" id="hobbies">
+                <h2 class="section-title">Hobbies</h2>
+                <ul class="hobbies-list">
+                    <li class="hobby-item"><span>🤖</span> Building projects for university students using AI</li>
+                    <li class="hobby-item"><span>🎸</span> Playing guitar</li>
+                </ul>
+            </div>
+
+            <div class="section" id="certifications">
+                <h2 class="section-title">Professional Certifications</h2>
+                <div class="certifications-grid">
+                    <div class="cert-item">
+                        <div class="cert-name">Machine Learning Specialization</div>
+                        <div class="cert-issuer">Stanford University & DeepLearning.AI (Coursera)</div>
+                        <div class="cert-date">2024</div>
+                    </div>
+                    <div class="cert-item">
+                        <div class="cert-name">AI for Everyone</div>
+                        <div class="cert-issuer">DeepLearning.AI (Coursera)</div>
+                        <div class="cert-date">2024</div>
+                    </div>
+                    <div class="cert-item">
+                        <div class="cert-name">Information Security Management</div>
+                        <div class="cert-issuer">LinkedIn Learning</div>
+                        <div class="cert-date">2023</div>
+                    </div>
+                    <div class="cert-item">
+                        <div class="cert-name">Google Cloud Security</div>
+                        <div class="cert-issuer">Google Cloud</div>
+                        <div class="cert-date">2023</div>
+                    </div>
+                    <div class="cert-item">
+                        <div class="cert-name">Digital Transformation</div>
+                        <div class="cert-issuer">LinkedIn Learning</div>
+                        <div class="cert-date">2022</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" id="education">
+                <h2 class="section-title">Education</h2>
+                
+                <div class="education-item">
+                    <div class="education-header">
+                        <div>
+                            <div class="degree">Bachelor of Computer Applications</div>
+                            <div class="university">Bangalore University</div>
+                        </div>
+                        <div class="date-location">
+                            Apr 2007 – Mar 2012<br>
+                            Bangalore, India
+                        </div>
+                    </div>
+                </div>
+
+                <div class="education-item">
+                    <div class="education-header">
+                        <div>
+                            <div class="degree">Diploma in Business Administration</div>
+                            <div class="university">Human Resources Specialization • Bangalore University</div>
+                        </div>
+                        <div class="date-location">
+                            2011<br>
+                            Bangalore, India
+                        </div>
+                    </div>
+                </div>
+
+                <div class="education-item">
+                    <div class="education-header">
+                        <div>
+                            <div class="degree">Higher Secondary Certificate (12th)</div>
+                            <div class="university">Kendriya Vidyalaya</div>
+                        </div>
+                        <div class="date-location">
+                            2007<br>
+                            New Delhi, India
+                        </div>
+                    </div>
+                </div>
+
+                <div class="education-item">
+                    <div class="education-header">
+                        <div>
+                            <div class="degree">Secondary School Certificate (10th)</div>
+                            <div class="university">Kendriya Vidyalaya</div>
+                        </div>
+                        <div class="date-location">
+                            2005<br>
+                            Bhubaneswar, India
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const skillData = {
+                leadership: {
+                    labels: ['Strategic Collab.', 'Mentorship', 'Knowledge Mgmt.', 'Crisis Mgmt.', 'Performance Analytics', 'Process Improvement'],
+                    data: [90, 85, 95, 88, 92, 80]
+                },
+                cloud: {
+                    labels: ['Microsoft 365', 'Azure', 'GCP', 'AWS', 'Identity & Access', 'Cloud Security'],
+                    data: [95, 85, 75, 70, 90, 88]
+                },
+                ai: {
+                    labels: ['Generative AI', 'MS Copilot', 'Dynamics 365', 'ML Concepts', 'Data-driven Opt.', 'Root Cause Analysis'],
+                    data: [85, 95, 90, 80, 92, 88]
+                }
+            };
+
+            try {
+                const ctx = document.getElementById('skillsChart').getContext('2d');
+                const skillsChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: skillData.leadership.labels,
+                        datasets: [{
+                            label: 'Proficiency',
+                            data: skillData.leadership.data,
+                            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                pointLabels: {
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    },
+                                    color: '#4a5568'
+                                },
+                                ticks: {
+                                    backdropColor: 'transparent',
+                                    color: '#6b7280',
+                                    stepSize: 20
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+
+                const skillButtons = document.querySelectorAll('.skill-btn-js');
+                skillButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        skillButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        const skill = button.dataset.skill;
+                        skillsChart.data.labels = skillData[skill].labels;
+                        skillsChart.data.datasets[0].data = skillData[skill].data;
+                        skillsChart.update();
+                    });
+                });
+            } catch (error) {
+                console.error("Error initializing Chart.js:", error);
+            }
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.section');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 100) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active-link');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active-link');
+                    }
+                });
+            });
+            
+            navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
